@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Painel Administrativo</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<div
+    id="loginScreen"
+    class="login-screen"
+>
+
+    <div class="login-card">
+
+        <div class="login-icon">
+            🔐
+        </div>
+
+        <h1>
+            Área administrativa
+        </h1>
+
+        <p>
+            Entre com suas credenciais para acessar os inscritos.
+        </p>
+
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="username">
+                    E-mail do administrador
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="seuemail@exemplo.com"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Senha
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Digite a senha"
+                    required
+                >
+
+            </div>
+
+
+            <p
+                id="loginError"
+                class="error-message hidden"
+            >
+                Usuário ou senha incorretos.
+            </p>
+
+
+            <button
+                type="submit"
+                class="btn primary full-btn"
+            >
+                Entrar
+            </button>
+
+        </form>
+
+
+        <a
+            href="index.html"
+            class="back-link"
+        >
+            ← Voltar para inscrição
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     PAINEL ADMINISTRATIVO
+===================================================== -->
+
+<div
+    id="adminPanel"
+    class="hidden"
+>
+
+
+    <!-- CABEÇALHO -->
+
+    <header class="admin-header">
+
+        <div>
+
+            <span class="badge">
+                ADMINISTRADOR
+            </span>
+
+            <h1>
+                Painel do Evento
+            </h1>
+
+            <p>
+                Gerenciamento dos participantes inscritos.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="btn secondary"
+            onclick="logout()"
+        >
+            Sair
+        </button>
+
+    </header>
+
+
+
+    <!-- CONTEÚDO -->
+
+    <main class="admin-container">
+
+
+        <!-- =================================================
+             ESTATÍSTICAS
+        ================================================== -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    👥
+                </div>
+
+                <div>
+
+                    <span>
+                        Total de inscritos
+                    </span>
+
+                    <strong id="totalRegistrations">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon purple">
+                    👨‍👩‍👧
+                </div>
+
+                <div>
+
+                    <span>
+                        Total de adultos
+                    </span>
+
+                    <strong id="totalAdults">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon orange">
+                    🧒
+                </div>
+
+                <div>
+
+                    <span>
+                        Total de crianças
+                    </span>
+
+                    <strong id="totalChildren">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    🍽️
+                </div>
+
+                <div>
+
+                    <span>
+                        Total de almoços
+                    </span>
+
+                    <strong id="totalLunch">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon pink">
+                    👶
+                </div>
+
+                <div>
+
+                    <span>
+                        Levarão crianças
+                    </span>
+
+                    <strong id="familiesWithChildren">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             FILTROS
+        ================================================== -->
+
+        <section class="toolbar">
+
+
+            <div class="search-box">
+
+                🔎
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Pesquisar por nome ou telefone..."
+                >
+
+            </div>
+
+
+            <select id="lunchFilter">
+
+                <option value="all">
+                    Todos os almoços
+                </option>
+
+                <option value="Sim">
+                    Com almoço
+                </option>
+
+                <option value="Não">
+                    Sem almoço
+                </option>
+
+            </select>
+
+
+            <select id="childrenFilter">
+
+                <option value="all">
+                    Todas as famílias
+                </option>
+
+                <option value="Sim">
+                    Com crianças
+                </option>
+
+                <option value="Não">
+                    Sem crianças
+                </option>
+
+            </select>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             BOTÕES DE AÇÃO
+        ================================================== -->
+
+        <section class="action-bar">
+
+
+            <button
+                type="button"
+                class="btn primary"
+                onclick="openAddModal()"
+            >
+                + Adicionar inscrição
+            </button>
+
+
+            <div class="export-buttons">
+
+
+                <button type="button" id="printBtn" class="btn btn--primary no-print">
+                    🖨️ Imprimir lista
+                </button>
+
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             TABELA DE INSCRITOS
+        ================================================== -->
+
+        <section class="table-card">
+
+
+            <div class="table-header">
+
+
+                <div>
+
+                    <h2>
+                        Lista de inscritos
+                    </h2>
+
+                    <p>
+                        Organizada automaticamente em ordem alfabética.
+                    </p>
+
+                </div>
+
+
+                <span
+                    id="resultCount"
+                    class="result-count"
+                >
+                    0 participantes
+                </span>
+
+
+            </div>
+
+
+
+            <div class="table-wrapper">
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Nome completo
+                            </th>
+
+                            <th>
+                                Telefone
+                            </th>
+
+                            <th>
+                                E-mail
+                            </th>
+
+                            <th>
+                                Cidade
+                            </th>
+
+                            <th>
+                                Adultos
+                            </th>
+
+                            <th>
+                                Almoço
+                            </th>
+
+                            <th>
+                                Pagamento
+                            </th>
+
+                            <th>
+                                Valor
+                            </th>
+
+                            <th>
+                                Crianças
+                            </th>
+
+                            <th>
+                                Qtd. crianças
+                            </th>
+
+                            <th>
+                                Observações
+                            </th>
+
+                            <th>
+                                Ações
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="registrationsTable"
+                    ></tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+
+            <!-- ESTADO VAZIO -->
+
+            <div
+                id="emptyState"
+                class="empty-state hidden"
+            >
+
+                <div>
+                    📋
+                </div>
+
+                <h3>
+                    Nenhuma inscrição encontrada
+                </h3>
+
+                <p>
+                    As inscrições aparecerão aqui.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODAL DE ADICIONAR / EDITAR INSCRIÇÃO
+===================================================== -->
+
+<div
+    id="registrationModal"
+    class="modal hidden"
+>
+
+
+    <div class="modal-content large-modal">
+
+
+        <!-- FECHAR -->
+
+        <button
+            type="button"
+            class="modal-close"
+            onclick="closeRegistrationModal()"
+        >
+            ×
+        </button>
+
+
+        <h2 id="modalTitle">
+            Adicionar inscrição
+        </h2>
+
+
+
+        <!-- FORMULÁRIO -->
+
+        <form id="adminRegistrationForm">
+
+
+            <!-- ID DA EDIÇÃO -->
+
+            <input
+                type="hidden"
+                id="editId"
+            >
+
+
+
+            <!-- =================================================
+                 DADOS PESSOAIS
+            ================================================== -->
+
+            <div class="form-grid">
+
+
+                <div class="form-group full">
+
+                    <label for="adminName">
+                        Nome completo *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="adminName"
+                        required
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="adminPhone">
+                        Telefone *
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="adminPhone"
+                        required
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="adminEmail">
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="adminEmail"
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="adminCity">
+                        Cidade
+                    </label>
+
+                    <input
+                        type="text"
+                        id="adminCity"
+                    >
+
+                </div>
+
+
+
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ALMOÇO DOS ADULTOS
+            ================================================== -->
+
+            <div class="question-box">
+
+                <label>
+                    🍽️ Os adultos irão querer almoço?
+                </label>
+
+
+                <div class="radio-options">
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="adminLunch"
+                            value="Sim"
+                            checked
+                        >
+
+                        <span>
+                            Sim
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="adminLunch"
+                            value="Não"
+                        >
+
+                        <span>
+                            Não
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CRIANÇAS
+            ================================================== -->
+
+            <div class="question-box">
+
+                <label>
+                    👶 Irá levar crianças?
+                </label>
+
+
+                <div class="radio-options">
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="adminChildren"
+                            value="Sim"
+                        >
+
+                        <span>
+                            Sim
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="adminChildren"
+                            value="Não"
+                            checked
+                        >
+
+                        <span>
+                            Não
+                        </span>
+
+                    </label>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 QUANTIDADE DE CRIANÇAS
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="adminChildrenCount">
+                    Quantidade de crianças
+                </label>
+
+                <input
+                    type="number"
+                    id="adminChildrenCount"
+                    min="0"
+                    value="0"
+                >
+
+            </div>
+
+
+
+            <!-- CAMPOS DAS CRIANÇAS -->
+
+            <div
+                id="adminChildrenFields"
+                class="form-group full"
+            ></div>
+
+
+
+            <!-- =================================================
+                 PAGAMENTO
+            ================================================== -->
+
+            <div class="section-title small">
+
+                <div class="icon">
+                    💳
+                </div>
+
+                <div>
+
+                    <h3>
+                        Pagamento do almoço
+                    </h3>
+
+                    <p>
+                        O valor do almoço é R$ 15,00 por pessoa.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-grid">
+
+
+                <!-- FORMA DE PAGAMENTO -->
+
+                <div class="form-group">
+
+                    <label for="adminPaymentMethod">
+                        Forma de pagamento
+                    </label>
+
+                    <select
+                        id="adminPaymentMethod"
+                    >
+
+                        <option value="Pix">
+                            📱 Pix
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- VALOR -->
+
+                <div class="form-group">
+
+                    <label for="adminPaymentValue">
+                        Valor do almoço
+                    </label>
+
+                    <input
+                        type="text"
+                        id="adminPaymentValue"
+                        value="R$ 0,00"
+                        readonly
+                    >
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 INFORMAÇÕES DO PIX
+            ================================================== -->
+
+            <div
+                id="adminPixInfo"
+                class="question-box"
+            >
+
+                <label>
+                    📱 Pagamento via Pix
+                </label>
+
+
+                <p>
+                    Chave Pix:
+                    <strong id="adminPixKey">
+                        —
+                    </strong>
+                </p>
+
+
+                <p>
+                    Destinatário:
+                    <strong id="adminPixRecipient">
+                        —
+                    </strong>
+                </p>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 OBSERVAÇÕES
+            ================================================== -->
+
+            <div class="form-group full">
+
+                <label for="adminNotes">
+                    Observações
+                </label>
+
+                <textarea
+                    id="adminNotes"
+                    rows="4"
+                    placeholder="Alguma informação importante?"
+                ></textarea>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SALVAR
+            ================================================== -->
+
+            <button
+                type="submit"
+                class="btn primary full-btn"
+            >
+                ✓ Salvar inscrição
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin.js"></script>
+
+
+</body>
+
+</html>

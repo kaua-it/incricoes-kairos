@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inscrição do Evento</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="hero">
+
+    <div class="hero-content">
+
+        <img
+            src="kairos.jpg.jpg"
+            alt="Foto do evento"
+            class="foto-evento"
+        >
+
+        <span class="badge">II Kairós de Cura e Libertação</span>
+
+        <h1>Confirme sua presença!</h1>
+
+        <p>
+            Preencha o formulário abaixo para realizar sua inscrição.
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <section class="form-card">
+
+        <div class="section-title">
+
+            <div class="icon">📝</div>
+
+            <div>
+
+                <h2>Ficha de inscrição</h2>
+
+                <p>
+                    Informe seus dados para confirmar sua participação.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form id="registrationForm">
+
+            <!-- DADOS PESSOAIS -->
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+
+                    <label for="name">
+                        Nome completo *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Digite seu nome completo"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Telefone / WhatsApp *
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        placeholder="(00) 00000-0000"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="seuemail@email.com"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="city">
+                        Cidade
+                    </label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        placeholder="Sua cidade"
+                    >
+
+                </div>
+
+
+
+            </div>
+
+
+            <!-- ALMOÇO DOS ADULTOS -->
+
+            <div class="question-box">
+
+                <label>
+                    🍽️ Você irá querer almoço?
+                </label>
+
+                <div class="radio-options">
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="lunch"
+                            value="Sim"
+                            required
+                        >
+
+                        <span>Sim</span>
+
+                    </label>
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="lunch"
+                            value="Não"
+                        >
+
+                        <span>Não</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- CRIANÇAS -->
+
+            <div class="question-box">
+
+                <label>
+                    👶 Você irá levar crianças?
+                </label>
+
+                <div class="radio-options">
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="children"
+                            value="Sim"
+                            required
+                        >
+
+                        <span>Sim</span>
+
+                    </label>
+
+
+                    <label class="radio-card">
+
+                        <input
+                            type="radio"
+                            name="children"
+                            value="Não"
+                        >
+
+                        <span>Não</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- INFORMAÇÕES DAS CRIANÇAS -->
+
+            <div
+                id="childrenSection"
+                class="children-section hidden"
+            >
+
+                <div class="section-title small">
+
+                    <div class="icon">
+                        👶
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Informações das crianças
+                        </h3>
+
+                        <p>
+                            Informe o nome, a idade e se cada criança irá querer almoço.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="childrenCount">
+                        Quantidade de crianças
+                    </label>
+
+                    <input
+                        type="number"
+                        id="childrenCount"
+                        min="1"
+                        value="1"
+                    >
+
+                </div>
+
+
+                <!-- O JAVASCRIPT CRIA AS CRIANÇAS AQUI -->
+
+                <div id="childrenFields"></div>
+
+            </div>
+
+
+            <!-- PAGAMENTO -->
+
+            <div
+                id="paymentSection"
+                class="payment-section hidden"
+            >
+
+                <div class="section-title small">
+
+                    <div class="icon">
+                        💳
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Pagamento do almoço
+                        </h3>
+
+                        <p>
+                            Confira o valor e escolha a forma de pagamento.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="payment-summary">
+
+                    <div class="payment-row">
+
+                        <span>
+                            🍽️ Quantidade de almoços
+                        </span>
+
+                        <strong id="lunchQuantity">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            💰 Valor por almoço
+                        </span>
+
+                        <strong>
+                            R$ 15,00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="lunchTotal">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="question-box">
+
+                    <label>
+                        💳 Forma de pagamento *
+                    </label>
+
+                    <div class="radio-options">
+
+
+                        <label class="radio-card">
+
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="PIX"
+                            >
+
+                            <span>
+                                📱 PIX
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DADOS DO PIX -->
+
+                <div
+                    id="pixInfo"
+                    class="pix-info hidden"
+                >
+
+                    <div class="pix-title">
+                        📱 Pagamento via PIX
+                    </div>
+
+                    <p>
+                        Utilize os dados abaixo para realizar o pagamento:
+                    </p>
+
+
+                    <div class="pix-data">
+
+                        <div class="pix-key-box">
+                    
+                            <span>
+                                Chave PIX
+                            </span>
+                    
+                            <div class="pix-key-line">
+                    
+                                <strong id="pixKey"></strong>
+                    
+                                <button
+                                    type="button"
+                                    class="copy-pix-btn"
+                                    onclick="copyPixKey()"
+                                    id="copyPixButton"
+                                >
+                                    📋 Copiar chave
+                                </button>
+                    
+                            </div>
+                    
+                        </div>
+                    
+                        <div>
+                    
+                            <span>
+                                Destinatário
+                            </span>
+                    
+                            <strong id="pixName"></strong>
+                    
+                        </div>
+                    
+                    </div>
+                    
+                    
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- OBSERVAÇÕES -->
+
+            <div class="form-group">
+
+                <label for="notes">
+                    Observações
+                </label>
+
+                <textarea
+                    id="notes"
+                    rows="4"
+                    placeholder="Alguma informação importante?"
+                ></textarea>
+
+            </div>
+
+
+            <!-- AUTORIZAÇÃO DE USO DE IMAGEM -->
+
+            <div class="permission-box">
+
+                <div class="permission-title">
+
+                    <span class="permission-icon">
+                        📸
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Autorização de uso de imagem *
+                        </h3>
+
+                        <p>
+                            Esta autorização é necessária para concluir sua inscrição.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <label class="permission-check">
+
+                    <input
+                        type="checkbox"
+                        id="imagePermission"
+                        name="imagePermission"
+                        required
+                    >
+
+                    <span>
+                        Autorizo a realização e utilização de fotografias e vídeos
+                        nos quais eu possa aparecer durante o evento, para fins de
+                        divulgação das atividades da organização em redes sociais
+                        e outros meios de comunicação institucionais.
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <!-- BOTÃO -->
+
+            <button
+                type="submit"
+                class="btn primary full-btn"
+            >
+                ✓ Confirmar inscrição
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<!-- MODAL DE SUCESSO -->
+
+<div
+    id="successModal"
+    class="modal hidden"
+>
+
+    <div class="modal-content">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h2>
+            Inscrição realizada!
+        </h2>
+
+        <p>
+            Obrigado por confirmar sua presença.
+            Seus dados foram registrados com sucesso.
+        </p>
+
+        <button
+            class="btn primary"
+            onclick="closeModal()"
+        >
+            Fechar
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- RODAPÉ -->
+
+<footer>
+
+    <p>
+        © 2026 — Organização do Evento
+    </p>
+
+    <a
+        href="admin.html"
+        class="admin-link"
+    >
+        Área administrativa
+    </a>
+
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+</body>
+
+</html>
