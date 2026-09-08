@@ -132,18 +132,6 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
     const email = document.getElementById("username")?.value.trim();
     const password = document.getElementById("password")?.value || "";
     const errorElement = document.getElementById("loginError");
-    const adultLunchChoice = data.lunch === "Sim";
-
-    if (adultLunchChoice && !data.proteina) {
-        alert("Selecione a proteína do almoço do adulto.");
-        document.getElementById("adminProtein")?.focus();
-        return;
-    }
-
-    if (childrenData.some(child => child.almoco && !child.proteina)) {
-        alert("Selecione a proteína do almoço para cada criança que irá almoçar.");
-        return;
-    }
 
     const button = event.currentTarget.querySelector('button[type="submit"]');
 
@@ -159,6 +147,20 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
             email,
             password
         });
+
+        if (error) throw error;
+
+        await showAdmin();
+    } catch (error) {
+        console.error("Erro no login:", error);
+        errorElement?.classList.remove("hidden");
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Entrar";
+        }
+    }
+});
 
         if (error) throw error;
 
