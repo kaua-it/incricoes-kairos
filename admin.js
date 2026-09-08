@@ -162,9 +162,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
     }
 });
 
-        if (error) throw error;
 
-        await showAdmin();
     } catch (error) {
         console.error("Erro no login:", error);
         errorElement?.classList.remove("hidden");
