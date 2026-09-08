@@ -83,6 +83,7 @@ function mapRegistration(row) {
         city: row.cidade || "",
         adults: 1,
         lunch: row.almoco ? "Sim" : "Não",
+        proteina: row.proteina || "",
         adultLunchCount: row.almoco ? 1 : 0,
         children: getChildrenCount(row) > 0 ? "Sim" : "Não",
         childrenCount: getChildrenCount(row),
@@ -131,6 +132,19 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
     const email = document.getElementById("username")?.value.trim();
     const password = document.getElementById("password")?.value || "";
     const errorElement = document.getElementById("loginError");
+    const adultLunchChoice = data.lunch === "Sim";
+
+    if (adultLunchChoice && !data.proteina) {
+        alert("Selecione a proteína do almoço do adulto.");
+        document.getElementById("adminProtein")?.focus();
+        return;
+    }
+
+    if (childrenData.some(child => child.almoco && !child.proteina)) {
+        alert("Selecione a proteína do almoço para cada criança que irá almoçar.");
+        return;
+    }
+
     const button = event.currentTarget.querySelector('button[type="submit"]');
 
     errorElement?.classList.add("hidden");
@@ -188,6 +202,7 @@ async function saveRegistrationToDatabase(data, id = null) {
         email: data.email,
         cidade: data.city,
         almoco: data.lunch === "Sim",
+        proteina: data.lunch === "Sim" ? (data.proteina || null) : null,
         criancas: data.childrenData || [],
         observacoes: data.notes || "",
         autorizacao_imagem: data.imagePermission !== false
@@ -316,7 +331,11 @@ function render() {
                 <div class="child-detail">
                     <strong>${escapeHTML(child.nome ?? child.name ?? "")}</strong>
                     <span>${escapeHTML(child.idade ?? child.age ?? "-")} anos</span>
-                    <small>${(child.almoco === true || child.lunch === true || child.lunch === "Sim") ? "🍽️ Almoço" : "Sem almoço"}</small>
+                    <small>${
+                        (child.almoco === true || child.lunch === true || child.lunch === "Sim")
+                            ? `🍽️ Almoço — ${escapeHTML(child.proteina || "Proteína não informada")}`
+                            : "Sem almoço"
+                    }</small>
                 </div>
             `).join("")
             : "-";
@@ -332,6 +351,7 @@ function render() {
                     ? `<strong>🍽️ ${totalLunch}</strong><br><small>${getAdultLunchCount(item)} adulto(s)${getChildrenLunchCount(item) ? ` + ${getChildrenLunchCount(item)} criança(s)` : ""}</small>`
                     : "Não"}
             </td>
+            <td>${item.lunch === "Sim" ? escapeHTML(item.proteina || "Não informada") : "-"}</td>
             <td>${totalLunch > 0 ? "📱 PIX" : "-"}</td>
             <td>${totalLunch > 0 ? formatCurrency(lunchValue) : "R$ 0,00"}</td>
             <td>${children.length ? "👶 Sim" : "Não"}</td>
@@ -364,6 +384,9 @@ function openAddModal() {
     const lunchYes = document.querySelector('input[name="adminLunch"][value="Sim"]');
     if (lunchYes) lunchYes.checked = true;
 
+    const adminProtein = document.getElementById("adminProtein");
+    if (adminProtein) adminProtein.value = "";
+
     document.getElementById("adminChildrenCount").value = 0;
     document.getElementById("adminChildrenFields").innerHTML = "";
     document.getElementById("registrationModal")?.classList.remove("hidden");
@@ -386,6 +409,9 @@ function openEditModal(id) {
     document.querySelectorAll('input[name="adminLunch"]').forEach(input => {
         input.checked = input.value === item.lunch;
     });
+
+    const adminProtein = document.getElementById("adminProtein");
+    if (adminProtein) adminProtein.value = item.proteina || "";
 
     document.querySelectorAll('input[name="adminChildren"]').forEach(input => {
         input.checked = input.value === item.children;
@@ -416,6 +442,7 @@ function generateAdminChildrenFields(existingChildren = []) {
         const name = child.nome ?? child.name ?? "";
         const age = child.idade ?? child.age ?? "";
         const lunch = child.almoco === true || child.lunch === true || child.lunch === "Sim";
+        const protein = child.proteina || "";
 
         const wrapper = document.createElement("div");
         wrapper.className = "child-card";
@@ -435,6 +462,16 @@ function generateAdminChildrenFields(existingChildren = []) {
                 <input type="checkbox" class="admin-child-lunch" ${lunch ? "checked" : ""}>
                 <span>🍽️ Esta criança irá querer almoço</span>
             </label>
+
+            <div class="form-group admin-child-protein-group ${lunch ? "" : "hidden"}">
+                <label>🥩 Qual proteína?</label>
+                <select class="admin-child-protein" ${lunch ? "required" : ""}>
+                    <option value="">Selecione a proteína</option>
+                    <option value="Carne" ${protein === "Carne" ? "selected" : ""}>🥩 Carne</option>
+                    <option value="Frango" ${protein === "Frango" ? "selected" : ""}>🍗 Frango</option>
+                    <option value="Peixe" ${protein === "Peixe" ? "selected" : ""}>🐟 Peixe</option>
+                </select>
+            </div>
         `;
 
         container.appendChild(wrapper);
@@ -451,13 +488,31 @@ document.getElementById("adminChildrenCount")?.addEventListener("input", () => {
 
 document.getElementById("adminChildrenFields")?.addEventListener("change", event => {
     if (event.target.classList.contains("admin-child-lunch")) {
+        const wrapper = event.target.closest(".child-card");
+        const proteinGroup = wrapper?.querySelector(".admin-child-protein-group");
+        const proteinSelect = wrapper?.querySelector(".admin-child-protein");
+
+        if (event.target.checked) {
+            proteinGroup?.classList.remove("hidden");
+            if (proteinSelect) proteinSelect.required = true;
+        } else {
+            proteinGroup?.classList.add("hidden");
+            if (proteinSelect) {
+                proteinSelect.required = false;
+                proteinSelect.value = "";
+            }
+        }
+
         updatePaymentDisplay();
     }
 });
 
 
 document.querySelectorAll('input[name="adminLunch"]').forEach(input => {
-    input.addEventListener("change", updatePaymentDisplay);
+    input.addEventListener("change", () => {
+        updateAdminProteinVisibility();
+        updatePaymentDisplay();
+    });
 });
 
 
@@ -476,6 +531,24 @@ document.querySelectorAll('input[name="adminChildren"]').forEach(input => {
     });
 });
 
+function updateAdminProteinVisibility() {
+    const lunch = document.querySelector('input[name="adminLunch"]:checked')?.value;
+    const section = document.getElementById("adminProteinSection");
+    const select = document.getElementById("adminProtein");
+
+    if (!section || !select) return;
+
+    if (lunch === "Sim") {
+        section.classList.remove("hidden");
+        select.required = true;
+    } else {
+        section.classList.add("hidden");
+        select.required = false;
+        select.value = "";
+    }
+}
+
+
 function updatePaymentDisplay() {
     const adultLunch = document.querySelector('input[name="adminLunch"]:checked')?.value === "Sim" ? 1 : 0;
     const childLunch = Array.from(document.querySelectorAll(".admin-child-lunch"))
@@ -493,6 +566,8 @@ function updatePaymentDisplay() {
     const pixRecipient = document.getElementById("adminPixRecipient");
     if (pixKey) pixKey.textContent = PIX_KEY;
     if (pixRecipient) pixRecipient.textContent = PIX_RECIPIENT;
+
+    updateAdminProteinVisibility();
 }
 
 
@@ -512,12 +587,16 @@ document.getElementById("adminRegistrationForm")?.addEventListener("submit", asy
         const names = document.querySelectorAll(".admin-child-name");
         const ages = document.querySelectorAll(".admin-child-age");
         const lunches = document.querySelectorAll(".admin-child-lunch");
+        const proteins = document.querySelectorAll(".admin-child-protein");
 
         names.forEach((input, index) => {
             childrenData.push({
                 nome: input.value.trim(),
                 idade: Number(ages[index]?.value || 0),
-                almoco: Boolean(lunches[index]?.checked)
+                almoco: Boolean(lunches[index]?.checked),
+                proteina: lunches[index]?.checked
+                    ? (proteins[index]?.value || null)
+                    : null
             });
         });
     }
@@ -528,6 +607,7 @@ document.getElementById("adminRegistrationForm")?.addEventListener("submit", asy
         email: document.getElementById("adminEmail").value.trim(),
         city: document.getElementById("adminCity").value.trim(),
         lunch: document.querySelector('input[name="adminLunch"]:checked')?.value || "Não",
+        proteina: document.getElementById("adminProtein")?.value || null,
         children: childrenChoice,
         childrenData,
         notes: document.getElementById("adminNotes").value.trim(),
@@ -612,7 +692,8 @@ function printCredenciamento() {
             ? children.map(child => {
                 const name = child.nome ?? child.name ?? "";
                 const age = child.idade ?? child.age ?? "-";
-                return `${escapeHTML(name)} (${escapeHTML(age)} anos)`;
+                const protein = child.proteina || "Proteína não informada";
+                return `${escapeHTML(name)} (${escapeHTML(age)} anos) — ${escapeHTML(protein)}`;
             }).join("<br>")
             : "—";
 
@@ -622,7 +703,7 @@ function printCredenciamento() {
                 <td><strong>${escapeHTML(item.name)}</strong></td>
                 <td>${escapeHTML(item.phone || "—")}</td>
                 <td>${escapeHTML(item.city || "—")}</td>
-                <td>${getTotalLunchCount(item) > 0 ? "SIM" : "NÃO"}</td>
+                <td>${item.lunch === "Sim" ? `SIM — ${escapeHTML(item.proteina || "Proteína não informada")}` : "NÃO"}</td>
                 <td>${childrenText}</td>
                 <td>${escapeHTML(item.notes || "—")}</td>
                 <td class="presence">☐</td>
@@ -710,8 +791,8 @@ function printCredenciamento() {
                 <th>Nome</th>
                 <th>Telefone</th>
                 <th>Cidade</th>
-                <th>Almoço</th>
-                <th>Crianças (nome/idade)</th>
+                <th>Almoço / proteína</th>
+                <th>Crianças (nome/idade/proteína)</th>
                 <th>Observações</th>
                 <th>Presente</th>
             </tr>
