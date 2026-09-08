@@ -163,16 +163,6 @@ document.getElementById("loginForm")?.addEventListener("submit", async event => 
 });
 
 
-    } catch (error) {
-        console.error("Erro no login:", error);
-        errorElement?.classList.remove("hidden");
-    } finally {
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Entrar";
-        }
-    }
-});
 
 
 /* =====================================================
