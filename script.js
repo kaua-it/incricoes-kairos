@@ -168,6 +168,14 @@ function updateAdultProteinVisibility() {
     }
 }
 
+document
+    .querySelectorAll('input[name="lunch"]')
+    .forEach(input => {
+        input.addEventListener("change", () => {
+            updateAdultProteinVisibility();
+            updatePaymentSection();
+        });
+    });
 
 function updatePaymentSection() {
     const lunch = document.querySelector('input[name="lunch"]:checked')?.value;
