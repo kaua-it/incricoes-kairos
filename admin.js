@@ -800,9 +800,489 @@ function printCredenciamento() {
         printWindow.print();
     };
 }
+/* =====================================================
+   IMPRESSÃO - LISTA DAS CRIANÇAS
+===================================================== */
+
+function printChildrenList() {
+    const childrenList = [];
+
+    // Percorre todas as inscrições
+    registrations.forEach(registration => {
+        const children = normalizeChildren(registration);
+
+        children.forEach(child => {
+            const hasLunch =
+                child.almoco === true ||
+                child.lunch === true ||
+                child.lunch === "Sim";
+
+            childrenList.push({
+                name: child.nome ?? child.name ?? "",
+                age: child.idade ?? child.age ?? "",
+                responsible: registration.name || "",
+                phone: registration.phone || "",
+                city: registration.city || "",
+                lunch: hasLunch,
+                protein: hasLunch
+                    ? (child.proteina || "Não informada")
+                    : "—"
+            });
+        });
+    });
+
+    // Ordena as crianças por nome
+    childrenList.sort((a, b) => {
+        return a.name.localeCompare(
+            b.name,
+            "pt-BR",
+            { sensitivity: "base" }
+        );
+    });
+
+    // Se não houver crianças cadastradas
+    if (!childrenList.length) {
+        alert("Não existem crianças cadastradas.");
+        return;
+    }
+
+    const totalChildren = childrenList.length;
+
+    const childrenWithLunch = childrenList.filter(child => {
+        return child.lunch;
+    }).length;
+
+    const childrenWithoutLunch =
+        totalChildren - childrenWithLunch;
 
 
-document.getElementById("printBtn")?.addEventListener("click", printCredenciamento);
+    // Criação das linhas da tabela
+    const rows = childrenList.map((child, index) => {
+        return `
+            <tr>
+                <td class="number">
+                    ${index + 1}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(child.name)}
+                    </strong>
+                </td>
+
+                <td class="age">
+                    ${escapeHTML(child.age || "—")} anos
+                </td>
+
+                <td>
+                    ${escapeHTML(child.responsible)}
+                </td>
+
+                <td>
+                    ${escapeHTML(child.phone || "—")}
+                </td>
+
+                <td>
+                    ${escapeHTML(child.city || "—")}
+                </td>
+
+                <td class="lunch">
+                    ${
+                        child.lunch
+                            ? "SIM"
+                            : "NÃO"
+                    }
+                </td>
+
+                <td>
+                    ${escapeHTML(child.protein)}
+                </td>
+
+                <td class="presence">
+                    ☐
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+
+    // Abre a janela de impressão
+    const printWindow = window.open(
+        "",
+        "_blank",
+        "width=1400,height=900"
+    );
+
+    if (!printWindow) {
+        alert(
+            "Permita pop-ups no navegador para imprimir a lista."
+        );
+        return;
+    }
+
+
+    printWindow.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Lista das Crianças — II Kairós
+</title>
+
+
+<style>
+
+/* =====================================================
+   CONFIGURAÇÃO DA PÁGINA
+===================================================== */
+
+@page {
+    size: A4 landscape;
+    margin: 8mm;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222;
+}
+
+
+/* =====================================================
+   CABEÇALHO
+===================================================== */
+
+.header {
+    border-bottom: 2px solid #9b7a3c;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+.header h1 {
+    font-size: 20px;
+    margin: 0 0 3px;
+}
+
+.header p {
+    margin: 2px 0;
+    font-size: 9px;
+}
+
+.header .date {
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   RESUMO
+===================================================== */
+
+.summary {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 8px;
+    font-size: 9px;
+}
+
+.summary strong {
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   TABELA
+===================================================== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+thead {
+    display: table-header-group;
+}
+
+tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+th,
+td {
+    border: 1px solid #999;
+    vertical-align: middle;
+    word-wrap: break-word;
+}
+
+th {
+    background: #eee;
+    padding: 6px 4px;
+    font-size: 8px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+td {
+    padding: 7px 5px;
+    font-size: 9px;
+    line-height: 1.25;
+}
+
+
+/* =====================================================
+   TAMANHO DAS COLUNAS
+===================================================== */
+
+th:nth-child(1),
+td:nth-child(1) {
+    width: 4%;
+    text-align: center;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    width: 18%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+    width: 8%;
+    text-align: center;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 19%;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+    width: 13%;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+    width: 10%;
+}
+
+th:nth-child(7),
+td:nth-child(7) {
+    width: 8%;
+    text-align: center;
+}
+
+th:nth-child(8),
+td:nth-child(8) {
+    width: 12%;
+}
+
+th:nth-child(9),
+td:nth-child(9) {
+    width: 8%;
+    text-align: center;
+}
+
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.number {
+    text-align: center;
+}
+
+.age {
+    text-align: center;
+}
+
+.lunch {
+    text-align: center;
+    font-weight: bold;
+}
+
+.presence {
+    font-size: 18px;
+    text-align: center;
+}
+
+
+/* =====================================================
+   RODAPÉ
+===================================================== */
+
+.footer {
+    margin-top: 6px;
+    font-size: 7px;
+    text-align: right;
+    color: #555;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =================================================
+     CABEÇALHO
+================================================== -->
+
+<div class="header">
+
+    <h1>
+        Lista das Crianças
+    </h1>
+
+    <p>
+        <strong>
+            II Kairós de Cura e Libertação
+        </strong>
+    </p>
+
+    <p>
+        Corações curados, vidas libertadas
+        pelo poder do Espírito Santo.
+    </p>
+
+    <p class="date">
+        19 e 20 de setembro —
+        Colégio Fonte do Saber (Antigo ECAC)
+    </p>
+
+</div>
+
+
+<!-- =================================================
+     RESUMO
+================================================== -->
+
+<div class="summary">
+
+    <span>
+        Total de crianças:
+        <strong>${totalChildren}</strong>
+    </span>
+
+    <span>
+        Com almoço:
+        <strong>${childrenWithLunch}</strong>
+    </span>
+
+    <span>
+        Sem almoço:
+        <strong>${childrenWithoutLunch}</strong>
+    </span>
+
+</div>
+
+
+<!-- =================================================
+     TABELA
+================================================== -->
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Nº</th>
+
+<th>
+Nome da criança
+</th>
+
+<th>
+Idade
+</th>
+
+<th>
+Responsável
+</th>
+
+<th>
+Telefone
+</th>
+
+<th>
+Cidade
+</th>
+
+<th>
+Almoço
+</th>
+
+<th>
+Proteína
+</th>
+
+<th>
+Presente
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+${rows}
+
+</tbody>
+
+</table>
+
+
+<!-- =================================================
+     RODAPÉ
+================================================== -->
+
+<div class="footer">
+
+Lista das Crianças —
+II Kairós de Cura e Libertação
+
+</div>
+
+
+</body>
+
+</html>
+
+`);
+
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+    };
+}
+
+document.getElementById("printBtn")
+    ?.addEventListener("click", printCredenciamento);
+
+document.getElementById("printChildrenBtn")
+    ?.addEventListener("click", printChildrenList);
 
 
 /* =====================================================
