@@ -417,3 +417,32 @@ function closeModal() {
 ===================================================== */
 
 updatePaymentSection();
+
+// =====================================================
+// ENVIO DE COMPROVANTE PELO WHATSAPP
+// =====================================================
+
+const whatsappComprovanteBtn = document.getElementById(
+    "whatsappComprovanteBtn"
+);
+
+whatsappComprovanteBtn?.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    // COLOQUE AQUI O NÚMERO DO WHATSAPP DO EVENTO
+    // Formato: 55 + DDD + número
+    const numeroWhatsApp = "5584992359717";
+
+    const nome =
+        document.getElementById("nome")?.value.trim() || "";
+
+    const mensagem =
+        `Olá! ${nome ? `Sou ${nome}. ` : ""}` +
+        `Acabei de realizar minha inscrição no II Kairós de Cura e Libertação. ` +
+        `Estou enviando meu comprovante de pagamento.`;
+
+    const link =
+        `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+    window.open(link, "_blank");
+});
