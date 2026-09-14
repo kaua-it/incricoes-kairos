@@ -980,3 +980,70 @@ tbody tr:hover {
         display: none !important;
     }
 }
+
+
+/* =====================================================
+   COMPROVANTE PELO WHATSAPP
+===================================================== */
+
+.whatsapp-comprovante {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid rgba(120, 90, 50, 0.18);
+    border-radius: 14px;
+    background: rgba(255, 250, 240, 0.75);
+}
+
+.whatsapp-comprovante p {
+    margin: 0 0 8px;
+}
+
+.whatsapp-comprovante p:first-child {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.whatsapp-comprovante p:nth-child(2) {
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 10px;
+    padding: 11px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+
+    background: #47745a;
+    color: #fff;
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.btn-whatsapp:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+}
+
+.whatsapp-icon {
+    width: 19px;
+    height: 19px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.whatsapp-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
