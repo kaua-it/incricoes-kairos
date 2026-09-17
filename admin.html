@@ -355,28 +355,62 @@
             </button>
 
 
-            <div class="export-buttons">
+           <div class="export-buttons">
 
+    <button
+        type="button"
+        id="printBtn"
+        class="btn btn--primary no-print"
+    >
+        🖨️ Imprimir lista
+    </button>
 
-                <button type="button" id="printBtn" class="btn btn--primary no-print">
-                    🖨️ Imprimir lista
-                </button>
-                <button
-    type="button"
-    class="btn"
-    id="printChildrenBtn"
->
-    👧 Imprimir lista das crianças
-</button>
+    <button
+        type="button"
+        class="btn"
+        id="printChildrenBtn"
+    >
+        👧 Imprimir lista das crianças
+    </button>
 
+    <button
+        type="button"
+        class="btn"
+        id="printLunchBtn"
+    >
+        🍽️ Imprimir fichas de almoço
+    </button>
 
-
-            </div>
+</div>
 
 
         </section>
 
+<!-- =====================================================
+     CONTROLE DOS PEDIDOS DE ALMOÇO
+===================================================== -->
 
+<section class="question-box no-print" id="lunchControl">
+
+    <div>
+        <strong id="lunchStatusText">
+            🔓 Pedidos de almoço abertos
+        </strong>
+
+        <p id="lunchStatusDescription">
+            Os participantes podem solicitar almoço normalmente.
+        </p>
+    </div>
+
+    <button
+        type="button"
+        class="btn secondary"
+        id="toggleLunchBtn"
+    >
+        🔒 Fechar pedidos de almoço
+    </button>
+
+</section>
 
         <!-- =================================================
              TABELA DE INSCRITOS
