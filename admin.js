@@ -103,13 +103,24 @@ function mapRegistration(row) {
 ===================================================== */
 
 async function showAdmin() {
-    document.getElementById("loginScreen")?.classList.add("hidden");
-    document.getElementById("adminPanel")?.classList.remove("hidden");
+
+    document
+        .getElementById("loginScreen")
+        ?.classList.add("hidden");
+
+    document
+        .getElementById("adminPanel")
+        ?.classList.remove("hidden");
 
     await loadRegistrations();
+
     render();
+
     updateStats();
+
     updatePaymentDisplay();
+
+    await carregarStatusAlmoco();
 }
 
 async function logout() {
@@ -1290,3 +1301,600 @@ document.getElementById("printChildrenBtn")
 ===================================================== */
 
 checkSession();
+
+/* =====================================================
+   CONTROLE DOS PEDIDOS DE ALMOÇO - ADMIN
+===================================================== */
+
+let statusAlmocoAberto = true;
+
+
+/* =====================================================
+   CARREGAR STATUS
+===================================================== */
+
+async function carregarStatusAlmoco() {
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("configuracoes_evento")
+            .select("almoco_aberto")
+            .eq("id", 1)
+            .single();
+
+        if (error) throw error;
+
+        statusAlmocoAberto =
+            data?.almoco_aberto === true;
+
+        atualizarStatusAlmocoAdmin();
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar status do almoço:",
+            error
+        );
+
+    }
+}
+
+
+/* =====================================================
+   ATUALIZAR INTERFACE
+===================================================== */
+
+function atualizarStatusAlmocoAdmin() {
+
+    const text =
+        document.getElementById(
+            "lunchStatusText"
+        );
+
+    const description =
+        document.getElementById(
+            "lunchStatusDescription"
+        );
+
+    const button =
+        document.getElementById(
+            "toggleLunchBtn"
+        );
+
+    if (!text || !description || !button) {
+        return;
+    }
+
+
+    if (statusAlmocoAberto) {
+
+        text.textContent =
+            "🔓 Pedidos de almoço abertos";
+
+        description.textContent =
+            "Os participantes podem solicitar almoço normalmente.";
+
+        button.textContent =
+            "🔒 Fechar pedidos de almoço";
+
+    } else {
+
+        text.textContent =
+            "🔒 Pedidos de almoço encerrados";
+
+        description.textContent =
+            "Novos pedidos de almoço estão bloqueados.";
+
+        button.textContent =
+            "🔓 Reabrir pedidos de almoço";
+
+    }
+
+}
+
+
+/* =====================================================
+   ABRIR / FECHAR
+===================================================== */
+
+async function alternarStatusAlmoco() {
+
+    const novoStatus =
+        !statusAlmocoAberto;
+
+    const mensagem =
+        novoStatus
+            ? "Deseja reabrir os pedidos de almoço?"
+            : "Deseja realmente fechar os pedidos de almoço?";
+
+    if (!confirm(mensagem)) {
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "toggleLunchBtn"
+        );
+
+    const textoOriginal =
+        button?.textContent;
+
+
+    try {
+
+        if (button) {
+
+            button.disabled = true;
+            button.textContent =
+                "Salvando...";
+
+        }
+
+
+        const { error } =
+            await supabaseClient
+                .from("configuracoes_evento")
+                .update({
+                    almoco_aberto:
+                        novoStatus,
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq("id", 1);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        statusAlmocoAberto =
+            novoStatus;
+
+        atualizarStatusAlmocoAdmin();
+
+
+        alert(
+            novoStatus
+                ? "Pedidos de almoço reabertos."
+                : "Pedidos de almoço encerrados."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao alterar status do almoço:",
+            error
+        );
+
+        alert(
+            "Não foi possível alterar o status dos pedidos de almoço."
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                textoOriginal ||
+                (
+                    statusAlmocoAberto
+                        ? "🔒 Fechar pedidos de almoço"
+                        : "🔓 Reabrir pedidos de almoço"
+                );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   EVENTO DO BOTÃO
+===================================================== */
+
+document
+    .getElementById(
+        "toggleLunchBtn"
+    )
+    ?.addEventListener(
+        "click",
+        alternarStatusAlmoco
+    );
+
+
+/* =====================================================
+   INICIALIZAÇÃO DO STATUS
+===================================================== */
+
+carregarStatusAlmoco();
+
+/* =====================================================
+   IMPRIMIR FICHAS INDIVIDUAIS DE ALMOÇO
+===================================================== */
+
+function printFichasAlmoco() {
+
+    const fichas = [];
+
+    registrations.forEach(item => {
+
+        /* ---------------------------------------------
+           ADULTO
+        --------------------------------------------- */
+
+        if (
+            item.lunch === "Sim" ||
+            item.adultLunchCount > 0
+        ) {
+
+            fichas.push({
+                registrationId: item.id,
+                name: item.name,
+                type: "Adulto",
+                protein:
+                    item.proteina ||
+                    "Proteína não informada"
+            });
+
+        }
+
+
+        /* ---------------------------------------------
+           CRIANÇAS
+        --------------------------------------------- */
+
+        const children =
+            normalizeChildren(item);
+
+        children.forEach(child => {
+
+            if (!child.almoco) {
+                return;
+            }
+
+            fichas.push({
+                registrationId: item.id,
+                name:
+                    child.nome ??
+                    child.name ??
+                    "",
+                type: "Criança",
+                age:
+                    child.idade ??
+                    child.age ??
+                    "-",
+                protein:
+                    child.proteina ||
+                    "Proteína não informada"
+            });
+
+        });
+
+    });
+
+
+    if (!fichas.length) {
+
+        alert(
+            "Não existem pessoas com almoço solicitado."
+        );
+
+        return;
+    }
+
+
+    fichas.sort((a, b) =>
+        a.name.localeCompare(
+            b.name,
+            "pt-BR",
+            {
+                sensitivity: "base"
+            }
+        )
+    );
+
+
+    const cards = fichas
+        .map((ficha, index) => {
+
+            const idade =
+                ficha.type === "Criança"
+                    ? `<div class="age">
+                         ${escapeHTML(String(ficha.age))} anos
+                       </div>`
+                    : "";
+
+            return `
+                <div class="lunch-card">
+
+                    <div class="event-name">
+                        II Kairós de Cura e Libertação
+                    </div>
+
+                    <div class="card-title">
+                        FICHA DE ALMOÇO
+                    </div>
+
+                    <div class="registration">
+                        Inscrição nº
+                        <strong>
+                            ${escapeHTML(
+                                String(ficha.registrationId)
+                            )}
+                        </strong>
+                    </div>
+
+                    <div class="name">
+                        ${escapeHTML(ficha.name)}
+                    </div>
+
+                    <div class="type">
+                        ${ficha.type}
+                        ${idade}
+                    </div>
+
+                    <div class="protein-label">
+                        PROTEÍNA
+                    </div>
+
+                    <div class="protein">
+                        ${escapeHTML(ficha.protein)}
+                    </div>
+
+                    <div class="delivered">
+                        ☐ ALMOÇO ENTREGUE
+                    </div>
+
+                </div>
+            `;
+
+        })
+        .join("");
+
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank",
+            "width=1000,height=800"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Permita pop-ups no navegador para imprimir as fichas."
+        );
+
+        return;
+    }
+
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="pt-BR">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                Fichas de Almoço — II Kairós
+            </title>
+
+            <style>
+
+                @page {
+                    size: A4 portrait;
+                    margin: 10mm;
+                }
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                body {
+                    margin: 0;
+                    font-family:
+                        Arial,
+                        Helvetica,
+                        sans-serif;
+
+                    background: white;
+                }
+
+                .sheet {
+                    display: grid;
+                    grid-template-columns:
+                        1fr 1fr;
+
+                    gap: 8mm;
+
+                    width: 100%;
+                }
+
+                .lunch-card {
+
+                    border: 2px solid #7a5a32;
+
+                    border-radius: 8px;
+
+                    padding: 10mm 8mm;
+
+                    min-height: 82mm;
+
+                    page-break-inside: avoid;
+
+                    display: flex;
+
+                    flex-direction: column;
+
+                    justify-content: space-between;
+
+                }
+
+                .event-name {
+
+                    font-size: 10px;
+
+                    text-align: center;
+
+                    text-transform: uppercase;
+
+                    letter-spacing: 1px;
+
+                    color: #6d5335;
+
+                    margin-bottom: 5px;
+
+                }
+
+                .card-title {
+
+                    text-align: center;
+
+                    font-size: 18px;
+
+                    font-weight: bold;
+
+                    letter-spacing: 1px;
+
+                    margin-bottom: 10px;
+
+                }
+
+                .registration {
+
+                    text-align: center;
+
+                    font-size: 10px;
+
+                    color: #666;
+
+                    margin-bottom: 8px;
+
+                }
+
+                .name {
+
+                    text-align: center;
+
+                    font-size: 20px;
+
+                    font-weight: bold;
+
+                    text-transform: uppercase;
+
+                    margin: 5px 0;
+
+                }
+
+                .type {
+
+                    text-align: center;
+
+                    font-size: 12px;
+
+                    margin-bottom: 12px;
+
+                }
+
+                .age {
+
+                    display: inline;
+                }
+
+                .protein-label {
+
+                    text-align: center;
+
+                    font-size: 9px;
+
+                    font-weight: bold;
+
+                    letter-spacing: 1px;
+
+                    color: #777;
+
+                }
+
+                .protein {
+
+                    text-align: center;
+
+                    font-size: 18px;
+
+                    font-weight: bold;
+
+                    margin: 3px 0 15px;
+
+                }
+
+                .delivered {
+
+                    border-top: 1px solid #999;
+
+                    padding-top: 9px;
+
+                    font-size: 12px;
+
+                    font-weight: bold;
+
+                    text-align: center;
+
+                }
+
+                @media print {
+
+                    .lunch-card {
+
+                        break-inside: avoid;
+
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div class="sheet">
+
+                ${cards}
+
+            </div>
+
+        </body>
+
+        </html>
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.onload = () => {
+
+        printWindow.focus();
+
+        printWindow.print();
+
+    };
+
+}
+document
+    .getElementById("printLunchBtn")
+    ?.addEventListener(
+        "click",
+        printFichasAlmoco
+    );
