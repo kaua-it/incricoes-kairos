@@ -446,3 +446,284 @@ whatsappComprovanteBtn?.addEventListener("click", function (event) {
 
     window.open(link, "_blank");
 });
+
+/* =====================================================
+   CONTROLE DE PEDIDOS DE ALMOÇO
+===================================================== */
+
+let almocoAberto = true;
+
+
+/* =====================================================
+   VERIFICAR STATUS NO SUPABASE
+===================================================== */
+
+async function verificarStatusAlmoco() {
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("configuracoes_evento")
+            .select("almoco_aberto")
+            .eq("id", 1)
+            .single();
+
+        if (error) {
+            console.error(
+                "Erro ao verificar status do almoço:",
+                error
+            );
+
+            return;
+        }
+
+        almocoAberto = data?.almoco_aberto === true;
+
+        atualizarInterfaceAlmoco();
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao verificar status do almoço:",
+            error
+        );
+
+    }
+}
+
+
+/* =====================================================
+   ATUALIZAR INTERFACE DO FORMULÁRIO
+===================================================== */
+
+function atualizarInterfaceAlmoco() {
+
+    const lunchInputs = document.querySelectorAll(
+        'input[name="lunch"]'
+    );
+
+    const childLunchInputs = document.querySelectorAll(
+        ".child-lunch"
+    );
+
+    const adultProteinSection =
+        document.getElementById(
+            "adultProteinSection"
+        );
+
+    const paymentSection =
+        document.getElementById(
+            "paymentSection"
+        );
+
+    if (!almocoAberto) {
+
+        /* ---------------------------------------------
+           ADULTO
+        --------------------------------------------- */
+
+        lunchInputs.forEach(input => {
+            input.disabled = true;
+        });
+
+        const lunchNao =
+            document.querySelector(
+                'input[name="lunch"][value="Não"]'
+            );
+
+        if (lunchNao) {
+            lunchNao.checked = true;
+        }
+
+
+        /* ---------------------------------------------
+           PROTEÍNA DO ADULTO
+        --------------------------------------------- */
+
+        const adultProtein =
+            document.getElementById(
+                "adultProtein"
+            );
+
+        if (adultProtein) {
+            adultProtein.value = "";
+            adultProtein.required = false;
+        }
+
+        adultProteinSection?.classList.add(
+            "hidden"
+        );
+
+
+        /* ---------------------------------------------
+           CRIANÇAS
+        --------------------------------------------- */
+
+        childLunchInputs.forEach(input => {
+
+            input.checked = false;
+            input.disabled = true;
+
+        });
+
+
+        document
+            .querySelectorAll(".child-protein")
+            .forEach(select => {
+
+                select.value = "";
+                select.required = false;
+                select.disabled = true;
+
+            });
+
+
+        document
+            .querySelectorAll(".child-protein-group")
+            .forEach(group => {
+
+                group.classList.add("hidden");
+
+            });
+
+
+        /* ---------------------------------------------
+           PAGAMENTO
+        --------------------------------------------- */
+
+        paymentSection?.classList.add(
+            "hidden"
+        );
+
+
+        /* ---------------------------------------------
+           AVISO
+        --------------------------------------------- */
+
+        let aviso =
+            document.getElementById(
+                "almocoEncerradoAviso"
+            );
+
+        if (!aviso) {
+
+            aviso =
+                document.createElement("div");
+
+            aviso.id =
+                "almocoEncerradoAviso";
+
+            aviso.className =
+                "question-box";
+
+            aviso.innerHTML = `
+                <strong>🔒 Pedidos de almoço encerrados</strong>
+                <p>
+                    Os pedidos de almoço para o evento
+                    já foram encerrados.
+                </p>
+            `;
+
+            const lunchInput =
+                document.querySelector(
+                    'input[name="lunch"]'
+                );
+
+            const lunchSection =
+                lunchInput?.closest(
+                    ".question-box"
+                );
+
+            lunchSection?.after(aviso);
+        }
+
+    } else {
+
+        /* ---------------------------------------------
+           ALMOÇO ABERTO
+        --------------------------------------------- */
+
+        lunchInputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        childLunchInputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        document
+            .querySelectorAll(".child-protein")
+            .forEach(select => {
+                select.disabled = false;
+            });
+
+
+        document
+            .getElementById(
+                "almocoEncerradoAviso"
+            )
+            ?.remove();
+
+
+        updateAdultProteinVisibility();
+        updatePaymentSection();
+
+    }
+}
+
+
+/* =====================================================
+   VERIFICAR ANTES DE ENVIAR
+===================================================== */
+
+const registrationForm =
+    document.getElementById(
+        "registrationForm"
+    );
+
+registrationForm?.addEventListener(
+    "submit",
+    function (event) {
+
+        if (!almocoAberto) {
+
+            const lunch =
+                document.querySelector(
+                    'input[name="lunch"]:checked'
+                )?.value;
+
+            const childLunch =
+                Array.from(
+                    document.querySelectorAll(
+                        ".child-lunch"
+                    )
+                ).some(
+                    checkbox =>
+                        checkbox.checked
+                );
+
+            if (
+                lunch === "Sim" ||
+                childLunch
+            ) {
+
+                event.preventDefault();
+
+                alert(
+                    "Os pedidos de almoço foram encerrados."
+                );
+
+                return;
+            }
+        }
+
+    },
+    true
+);
+
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+verificarStatusAlmoco();
